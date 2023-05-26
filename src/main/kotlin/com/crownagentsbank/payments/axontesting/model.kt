@@ -10,8 +10,6 @@ data class RemotelyHandledQuery(val id: Int)
 
 data class QueryResult(val id: Int, val handlerLocation: String)
 
-data class SimpleCommand(val id: Int)
+data class CreateSimpleEventCommand(val id: Int)
 
-data class EventCreatingCommand(val id: Int)
-
-data class SimpleEventHappenedEvent(val id: Int)
+data class SimpleEvent(val id: Int)

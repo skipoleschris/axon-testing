@@ -24,25 +24,23 @@ class TestController(
   @GetMapping(value = ["/command/local/{id}"], produces = ["application/json"])
   @ResponseStatus(HttpStatus.ACCEPTED)
   fun sendLocallyHandledCommand(@PathVariable("id") id: Int): CompletableFuture<Any> {
-    logger.info("Sending locally handled comment for id=$id")
+    logger.info("Sending locally handled command for id=$id")
     return commandGateway.send(LocallyHandledCommand(id))
   }
 
   @GetMapping(value = ["/command/remote/{id}"], produces = ["application/json"])
   @ResponseStatus(HttpStatus.ACCEPTED)
   fun sendRemotelyHandledCommand(@PathVariable("id") id: Int): CompletableFuture<Any> {
-    logger.info("Sending remotely handled comment for id=$id")
+    logger.info("Sending remotely handled command for id=$id")
     return commandGateway.send(RemotelyHandledCommand(id))
   }
 
-  //    @GetMapping(value = [ "/send-command/event/{id}" ], produces = [ "application/json" ])
-  //    @ResponseStatus(HttpStatus.ACCEPTED)
-  //    fun sendCommandThatCausesAnEventFireAndForget(
-  //        @PathVariable("id") id: Int
-  //    ) {
-  //        logger.info("Sending fire-and-forget EvenCreatingCommand for id=$id")
-  //        commandGateway.send<Any>(EventCreatingCommand(id))
-  //    }
+  @GetMapping(value = ["/event/simple/{id}"], produces = ["application/json"])
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  fun generateSimpleEvent(@PathVariable("id") id: Int): CompletableFuture<Any> {
+    logger.info("Sending command to generate a simple event for id=$id")
+    return commandGateway.send(CreateSimpleEventCommand(id))
+  }
 
   @GetMapping(value = ["/query/local/{id}"], produces = ["application/json"])
   @ResponseStatus(HttpStatus.OK)

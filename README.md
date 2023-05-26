@@ -60,6 +60,45 @@ The command is dispatched by the initiator and handled by the basic service.
 The commands are dispatched by the initiator. They are handled by either on basic service or the other,
 but we can see they are only ever handled once.
 
+## Non-Aggregate Event Experiments
+
+In these experiments we look at how events are handled when the event handle is not inside an aggregate.
+This will typically be the case for event handlers that populate view models or that react to events to
+carry out other operations.
+
+### Experiment 1 - Simple Events
+
+In this experiment we call an endpoint on the initiator that dispatches a locally handled command. The
+command handler then generates a simple event that isn't tied to any particular aggregate:
+
+    curl -v http://localhost:8080/axon-test/event/simple/1
+
+#### Experiment 1a - No consumers of the event are running
+
+In this version we don't have any instances of the basic microservice running. We can generate the event
+and if we go to the Axon Server console we can see the event in the event store list. Multiple events
+can be generated, and it is possible to see them added to the store.
+
+#### Experiment 1b - A single basic service is started
+
+When we then start one instance of the basic microservice then we can see it consuming and processing
+the events that were added to the store in part 1a.
+
+#### Experiment 1c - Stop and restart the basic service
+
+When the service is restarted we see it consume and process all the same events again. This maybe not
+what you would expect to happen. If processing those events initiated some external activity like moving
+money then each restart would carry out all operations again! Useful though if we need to re-process all the
+events to build up some internal application state.
+
+#### Experiment 1d - Start a second instance of the basic service
+
+Again, then the second instance is started then we see it also consume and process all the events. Again,
+maybe not what was expected and potentially bad if those events trigger some non-idempotent processing.
+
+So, the question from the above experiment is why are the events getting replayed each time we start up
+a new microservice instance with an event handler for th SimpleEvent type?
+
 ## Query Experiments
 
 These experiments work pretty much the same as for commands and look at how queries are dispatched and handled.

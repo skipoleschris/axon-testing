@@ -10,15 +10,10 @@ import org.springframework.stereotype.Component
 @Component
 class BasicCommandHandler {
 
-  private val logger = LoggerFactory.getLogger(CommandHandler::class.java)
+  private val logger = LoggerFactory.getLogger(BasicCommandHandler::class.java)
 
   @CommandHandler
   fun on(command: RemotelyHandledCommand) {
     logger.info("Handling command remotely: $command")
   }
-
-  //    @EventHandler
-  //    fun on(simpleEvent: SimpleEventHappenedEvent) {
-  //        logger.info("Handling event: $simpleEvent")
-  //    }
 }
