@@ -31,7 +31,7 @@ see how multiple instances deal with commands, queries and events.
 
 ## Command Experiments
 
-The first experiment looks at how commands are dispatched and handled. The *initiator* profile must be running.
+The first experiments look at how commands are dispatched and handled. The *initiator* profile must be running.
 There are two commands that can be dispatched, one that will be handled locally by the initiator microservice:
 
     curl -v http://localhost:8080/axon-test/command/local/{id}
@@ -44,7 +44,7 @@ a command that cannot be handled by the initiator but needs to be handled remote
 
 ### Experiment 1 - Create a locally handled command
 
-This should always work as the command is dispatched and handled by the initator.
+This should always work as the command is dispatched and handled by the initiator.
 
 ### Experiment 2 - Create a remotely handled command while no basic service is running
 
@@ -58,4 +58,39 @@ The command is dispatched by the initiator and handled by the basic service.
 ### Experiment 4 - Create remotely handled commands with two basic services running
 
 The commands are dispatched by the initiator. They are handled by either on basic service or the other,
+but we can see they are only ever handled once.
+
+## Query Experiments
+
+These experiments work pretty much the same as for commands and look at how queries are dispatched and handled.
+The *initiator* profile must be running. There are two queries that can be dispatched, one that will be handled
+locally by the initiator microservice:
+
+    curl -v http://localhost:8080/axon-test/query/local/{id}
+
+where {id} is a unique number that can be used to trace queries through the logs. The second dispatches
+a query that cannot be handled by the initiator but needs to be handled remotely by an instance of the
+*basic* microservices:
+
+    curl -v http://localhost:8080/axon-test/query/remote/{id}
+
+Both requests return a simple json document containing the id and whether the query was handled locally
+in the initiator or remotely in one of the basic microservices.
+
+### Experiment 1 - Create a locally handled query
+
+This should always work as the query is dispatched and handled by the initiator.
+
+### Experiment 2 - Create a remotely handled query while no basic service is running
+
+This generates an error because the query cannot be dispatched as there are no handlers available to process
+it. This demonstrates that query are not buffered or cached.
+
+### Experiment 3 - Create a remotely handled query with one basic service running
+
+The query is dispatched by the initiator and handled by the basic service.
+
+### Experiment 4 - Create remotely handled queries with two basic services running
+
+The queries are dispatched by the initiator. They are handled by either on basic service or the other,
 but we can see they are only ever handled once.

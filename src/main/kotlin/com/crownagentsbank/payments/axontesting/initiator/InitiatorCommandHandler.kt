@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 @Component
 class InitiatorCommandHandler {
 
-  private val logger = LoggerFactory.getLogger(CommandHandler::class.java)
+  private val logger = LoggerFactory.getLogger(InitiatorCommandHandler::class.java)
 
   @CommandHandler
   fun on(command: LocallyHandledCommand) {

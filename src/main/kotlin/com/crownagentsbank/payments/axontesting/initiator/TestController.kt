@@ -1,7 +1,6 @@
 package com.crownagentsbank.payments.axontesting.initiator
 
-import com.crownagentsbank.payments.axontesting.LocallyHandledCommand
-import com.crownagentsbank.payments.axontesting.RemotelyHandledCommand
+import com.crownagentsbank.payments.axontesting.*
 import org.axonframework.commandhandling.gateway.CommandGateway
 import org.axonframework.queryhandling.QueryGateway
 import org.slf4j.LoggerFactory
@@ -45,4 +44,17 @@ class TestController(
   //        commandGateway.send<Any>(EventCreatingCommand(id))
   //    }
 
+  @GetMapping(value = ["/query/local/{id}"], produces = ["application/json"])
+  @ResponseStatus(HttpStatus.OK)
+  fun sendLocallyHandledQuery(@PathVariable("id") id: Int): CompletableFuture<QueryResult> {
+    logger.info("Sending locally handled query for id=$id")
+    return queryGateway.query(LocallyHandledQuery(id), QueryResult::class.java)
+  }
+
+  @GetMapping(value = ["/query/remote/{id}"], produces = ["application/json"])
+  @ResponseStatus(HttpStatus.OK)
+  fun sendRemotelyHandledQuery(@PathVariable("id") id: Int): CompletableFuture<QueryResult> {
+    logger.info("Sending remotely handled query for id=$id")
+    return queryGateway.query(RemotelyHandledQuery(id), QueryResult::class.java)
+  }
 }
