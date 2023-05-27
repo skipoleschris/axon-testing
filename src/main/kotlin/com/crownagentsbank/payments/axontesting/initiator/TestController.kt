@@ -35,6 +35,13 @@ class TestController(
     return commandGateway.send(RemotelyHandledCommand(id))
   }
 
+  @GetMapping(value = ["/event/local/{id}"], produces = ["application/json"])
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  fun generateLocallyHandledEvent(@PathVariable("id") id: Int): CompletableFuture<Any> {
+    logger.info("Sending command to generate a locally handled event for id=$id")
+    return commandGateway.send(CreateLocallyHandledEventCommand(id))
+  }
+
   @GetMapping(value = ["/event/simple/{id}"], produces = ["application/json"])
   @ResponseStatus(HttpStatus.ACCEPTED)
   fun generateSimpleEvent(@PathVariable("id") id: Int): CompletableFuture<Any> {

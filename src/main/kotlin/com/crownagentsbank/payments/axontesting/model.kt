@@ -13,3 +13,7 @@ data class QueryResult(val id: Int, val handlerLocation: String)
 data class CreateSimpleEventCommand(val id: Int)
 
 data class SimpleEvent(val id: Int)
+
+data class CreateLocallyHandledEventCommand(val id: Int)
+
+data class LocallyHandledEvent(val id: Int)

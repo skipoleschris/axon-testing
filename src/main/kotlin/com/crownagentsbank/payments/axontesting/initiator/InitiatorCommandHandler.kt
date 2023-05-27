@@ -1,8 +1,6 @@
 package com.crownagentsbank.payments.axontesting.initiator
 
-import com.crownagentsbank.payments.axontesting.CreateSimpleEventCommand
-import com.crownagentsbank.payments.axontesting.LocallyHandledCommand
-import com.crownagentsbank.payments.axontesting.SimpleEvent
+import com.crownagentsbank.payments.axontesting.*
 import org.axonframework.commandhandling.CommandHandler
 import org.axonframework.eventhandling.gateway.EventGateway
 import org.slf4j.LoggerFactory
@@ -24,5 +22,11 @@ class InitiatorCommandHandler(private val eventGateway: EventGateway) {
   fun on(command: CreateSimpleEventCommand) {
     logger.info("Handling command to create a simple event: $command")
     eventGateway.publish(SimpleEvent(command.id))
+  }
+
+  @CommandHandler
+  fun on(command: CreateLocallyHandledEventCommand) {
+    logger.info("Handling command to create a locally handled event: $command")
+    eventGateway.publish(LocallyHandledEvent(command.id))
   }
 }
