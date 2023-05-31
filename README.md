@@ -39,10 +39,10 @@ There are a number of command experiments that can be dispatched:
 The `id` parameter is a unique number that can be used to trace commands through the logs. The `experiment`
 parameter controls which experiment is executed and supports the following values:
 
-* `local` -
-* `remote` -
-* `retry` -
-* `exception` -
+* `local`
+* `remote`
+* `retry`
+* `exception`
 
 ### Experiment 1 - Create a locally handled command
 
@@ -93,6 +93,67 @@ a basic service is started and the command is successfully handled.
 The business exception is thrown by the basic service and propagated back to the caller. Demonstrates
 the correct way that we should be working with commands.
 
+## Query Experiments
+
+These experiments work pretty much the same as for commands and look at how queries are dispatched and handled.
+The *initiator* profile must be running. There are a number of query experiments that can be dispatched:
+
+    curl -v http://localhost:8080/axon-test/query/{experiment}/{id}
+
+The {id} parameter is a unique number that can be used to trace queries through the logs. The `experiment`
+parameter controls which experiment is executed and supports the following values:
+
+* `local`
+* `remote`
+* `multiple`
+
+All requests return a simple json document containing the id and response details related to the experiment
+that has been completed.
+
+### Experiment 1 - Create a locally handled query
+
+    curl -v http://localhost:8080/axon-test/query/local/1
+
+This should always work as the query is dispatched and handled by the initiator.
+
+### Experiment 2 - Create a remotely handled query while no basic service is running
+
+    curl -v http://localhost:8080/axon-test/query/remote/2
+
+This generates an error because the query cannot be dispatched as there are no handlers available to process
+it. This demonstrates that query are not buffered or cached.
+
+### Experiment 3 - Create a remotely handled query with one basic service running
+
+    curl -v http://localhost:8080/axon-test/query/remote/3
+
+The query is dispatched by the initiator and handled by the basic service.
+
+### Experiment 4 - Create remotely handled queries with two basic services running
+
+    curl -v http://localhost:8080/axon-test/query/remote/4
+    curl -v http://localhost:8080/axon-test/query/remote/5
+    curl -v http://localhost:8080/axon-test/query/remote/6
+    curl -v http://localhost:8080/axon-test/query/remote/7
+
+The queries are dispatched by the initiator. They are handled by either one basic service or the other,
+but we can see they are only ever handled once.
+
+### Experiment 5 - Create a scatter-gather query with only the two basic services running
+
+    curl -v http://localhost:8080/axon-test/query/multiple/8
+
+The query is dispatched and is handled by one of the basic services. Note that although
+there are query handlers in both basic instances, only one is invoked due to them having
+the same Spring application name.
+
+### Experiment 6 - Create a scatter-gather query with also the additional service running
+
+    curl -v http://localhost:8080/axon-test/query/multiple/9
+
+The query handler in both the basic and additional service is invoked and the results from
+both are combined together and returned.
+
 ## Non-Aggregate Event Experiments
 
 In these experiments we look at how events are handled when the event handle is not inside an aggregate.
@@ -132,37 +193,3 @@ maybe not what was expected and potentially bad if those events trigger some non
 So, the question from the above experiment is why are the events getting replayed each time we start up
 a new microservice instance with an event handler for th SimpleEvent type?
 
-## Query Experiments
-
-These experiments work pretty much the same as for commands and look at how queries are dispatched and handled.
-The *initiator* profile must be running. There are two queries that can be dispatched, one that will be handled
-locally by the initiator microservice:
-
-    curl -v http://localhost:8080/axon-test/query/local/{id}
-
-where {id} is a unique number that can be used to trace queries through the logs. The second dispatches
-a query that cannot be handled by the initiator but needs to be handled remotely by an instance of the
-*basic* microservices:
-
-    curl -v http://localhost:8080/axon-test/query/remote/{id}
-
-Both requests return a simple json document containing the id and whether the query was handled locally
-in the initiator or remotely in one of the basic microservices.
-
-### Experiment 1 - Create a locally handled query
-
-This should always work as the query is dispatched and handled by the initiator.
-
-### Experiment 2 - Create a remotely handled query while no basic service is running
-
-This generates an error because the query cannot be dispatched as there are no handlers available to process
-it. This demonstrates that query are not buffered or cached.
-
-### Experiment 3 - Create a remotely handled query with one basic service running
-
-The query is dispatched by the initiator and handled by the basic service.
-
-### Experiment 4 - Create remotely handled queries with two basic services running
-
-The queries are dispatched by the initiator. They are handled by either on basic service or the other,
-but we can see they are only ever handled once.

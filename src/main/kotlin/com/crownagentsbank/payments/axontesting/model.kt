@@ -14,3 +14,5 @@ enum class QueryExperiments {
 }
 
 class BusinessException : Exception()
+
+data class QueryResult(val id: Int, val details: String)
