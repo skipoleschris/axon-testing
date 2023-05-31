@@ -1,5 +1,6 @@
 package com.crownagentsbank.payments.axontesting.configuration
 
+import com.crownagentsbank.payments.axontesting.initiator.BusinessCommands
 import org.axonframework.commandhandling.CommandBus
 import org.axonframework.commandhandling.gateway.CommandGatewayFactory
 import org.axonframework.commandhandling.gateway.IntervalRetryScheduler
@@ -45,5 +46,11 @@ class AxonConfig(
             .retryScheduler(retryScheduler)
             .build()
     return factory.createGateway(RetryingCommandGateway::class.java)
+  }
+
+  @Bean
+  fun businessCommandsCommandGateway(commandBus: CommandBus): BusinessCommands {
+    val factory = CommandGatewayFactory.builder().commandBus(commandBus).build()
+    return factory.createGateway(BusinessCommands::class.java)
   }
 }
