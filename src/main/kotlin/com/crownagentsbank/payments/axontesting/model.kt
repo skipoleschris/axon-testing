@@ -7,4 +7,10 @@ enum class CommandExperiments {
   exception
 }
 
+enum class QueryExperiments {
+  local,
+  remote,
+  multiple
+}
+
 class BusinessException : Exception()

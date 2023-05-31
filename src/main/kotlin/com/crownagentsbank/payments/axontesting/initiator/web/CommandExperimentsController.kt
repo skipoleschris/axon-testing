@@ -1,7 +1,8 @@
-package com.crownagentsbank.payments.axontesting.initiator
+package com.crownagentsbank.payments.axontesting.initiator.web
 
 import com.crownagentsbank.payments.axontesting.*
 import com.crownagentsbank.payments.axontesting.configuration.RetryingCommandGateway
+import com.crownagentsbank.payments.axontesting.initiator.BusinessCommands
 import org.axonframework.commandhandling.CommandExecutionException
 import org.axonframework.commandhandling.gateway.CommandGateway
 import org.slf4j.LoggerFactory
@@ -25,7 +26,7 @@ class CommandExperimentsController(
 
   @GetMapping(value = ["/command/{experiment}/{id}"], produces = ["application/json"])
   @ResponseStatus(HttpStatus.ACCEPTED)
-  fun sendCommand(
+  fun launchExperiment(
       @PathVariable("experiment") experiment: CommandExperiments,
       @PathVariable("id") id: Int
   ): CompletableFuture<Any> {

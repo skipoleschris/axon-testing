@@ -1,4 +1,4 @@
-package com.crownagentsbank.payments.axontesting.initiator
+package com.crownagentsbank.payments.axontesting.initiator.web
 
 import com.crownagentsbank.payments.axontesting.*
 import org.axonframework.commandhandling.gateway.CommandGateway

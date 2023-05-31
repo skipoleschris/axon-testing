@@ -1,6 +1,7 @@
 package com.crownagentsbank.payments.axontesting.initiator.web
 
 import org.axonframework.commandhandling.NoHandlerForCommandException
+import org.axonframework.queryhandling.NoHandlerForQueryException
 import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -17,6 +18,11 @@ class WebExceptionHandler : ResponseEntityExceptionHandler() {
   @ExceptionHandler(NoHandlerForCommandException::class)
   fun handleCommandDispatchException(ex: NoHandlerForCommandException): ErrorModel =
       ErrorModel(HttpStatus.SERVICE_UNAVAILABLE, message = "No handler available for command")
+
+  @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+  @ExceptionHandler(NoHandlerForQueryException::class)
+  fun handleQueryDispatchException(ex: NoHandlerForQueryException): ErrorModel =
+      ErrorModel(HttpStatus.SERVICE_UNAVAILABLE, message = "No handler available for query")
 }
 
 data class ErrorModel(
