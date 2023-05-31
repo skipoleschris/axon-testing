@@ -1,5 +1,7 @@
 package com.crownagentsbank.payments.axontesting.handler.basic
 
+import com.crownagentsbank.payments.axontesting.BusinessException
+import com.crownagentsbank.payments.axontesting.BusinessExceptionCommand
 import com.crownagentsbank.payments.axontesting.RemotelyHandledCommand
 import org.axonframework.commandhandling.CommandHandler
 import org.slf4j.LoggerFactory
@@ -15,5 +17,11 @@ class BasicCommandHandler {
   @CommandHandler
   fun on(command: RemotelyHandledCommand) {
     logger.info("Handling command remotely: $command")
+  }
+
+  @CommandHandler
+  fun on(command: BusinessExceptionCommand) {
+    logger.info("Remotely handing command and throwing a business exception: $command")
+    throw BusinessException()
   }
 }

@@ -32,33 +32,66 @@ see how multiple instances deal with commands, queries and events.
 ## Command Experiments
 
 The first experiments look at how commands are dispatched and handled. The *initiator* profile must be running.
-There are two commands that can be dispatched, one that will be handled locally by the initiator microservice:
+There are a number of command experiments that can be dispatched:
 
-    curl -v http://localhost:8080/axon-test/command/local/{id}
+    curl -v http://localhost:8080/axon-test/command/{experiment}/{id}
 
-where {id} is a unique number that can be used to trace commands through the logs. The second dispatches
-a command that cannot be handled by the initiator but needs to be handled remotely by an instance of the
-*basic* microservices:
+The `id` parameter is a unique number that can be used to trace commands through the logs. The `experiment`
+parameter controls which experiment is executed and supports the following values:
 
-    curl -v http://localhost:8080/axon-test/command/remote/{id}
+* `local` -
+* `remote` -
+* `retry` -
+* `exception` -
 
 ### Experiment 1 - Create a locally handled command
+
+    curl -v http://localhost:8080/axon-test/command/local/1
 
 This should always work as the command is dispatched and handled by the initiator.
 
 ### Experiment 2 - Create a remotely handled command while no basic service is running
 
-This generates an error because the command cannot be dispatched as there are no handlers available to process
-it. This demonstrates that commands are not buffered or cached.
+    curl -v http://localhost:8080/axon-test/command/remote/2
+
+Generates an immediate error because the command cannot be dispatched as there are no
+handlers available to process it. This demonstrates that commands are not buffered or cached.
+
+    curl -v http://localhost:8080/axon-test/command/retry/3
+
+Loops through 10 attempts to dispatch the command at 6 second intervals. As there
+are still no handlers available, an error is returned once all the retries are used. This demonstrates
+the ability to configure retry functionality within the command gateway.
 
 ### Experiment 3 - Create a remotely handled command with one basic service running
+
+    curl -v http://localhost:8080/axon-test/command/remote/4
 
 The command is dispatched by the initiator and handled by the basic service.
 
 ### Experiment 4 - Create remotely handled commands with two basic services running
 
+    curl -v http://localhost:8080/axon-test/command/remote/5
+    curl -v http://localhost:8080/axon-test/command/remote/6
+    curl -v http://localhost:8080/axon-test/command/remote/7
+    curl -v http://localhost:8080/axon-test/command/remote/8
+
 The commands are dispatched by the initiator. They are handled by either on basic service or the other,
 but we can see they are only ever handled once.
+
+### Experiment 5 - Start a handler after a retryable command has already been dispatched
+
+    curl -v http://localhost:8080/axon-test/command/retry/9
+
+Only the initiator is running when the command is sent. While it is looping through the retries,
+a basic service is started and the command is successfully handled.
+
+### Experiment 6 - Send a command that causes a business exception
+
+    curl -v http://localhost:8080/axon-test/command/exception/10
+
+The business exception is thrown by the basic service and propagated back to the caller. Demonstrates
+the correct way that we should be working with commands.
 
 ## Non-Aggregate Event Experiments
 

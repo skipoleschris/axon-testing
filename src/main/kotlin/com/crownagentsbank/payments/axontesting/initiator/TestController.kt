@@ -1,6 +1,7 @@
 package com.crownagentsbank.payments.axontesting.initiator
 
 import com.crownagentsbank.payments.axontesting.*
+import com.crownagentsbank.payments.axontesting.configuration.RetryingCommandGateway
 import org.axonframework.commandhandling.gateway.CommandGateway
 import org.axonframework.queryhandling.QueryGateway
 import org.slf4j.LoggerFactory
@@ -16,23 +17,33 @@ import java.util.concurrent.CompletableFuture
 @Validated
 class TestController(
     private val commandGateway: CommandGateway,
+    private val retryingCommandGateway: RetryingCommandGateway,
     private val queryGateway: QueryGateway
 ) {
 
   private val logger = LoggerFactory.getLogger(TestController::class.java)
 
-  @GetMapping(value = ["/command/local/{id}"], produces = ["application/json"])
+  @GetMapping(value = ["/command/{experiment}/{id}"], produces = ["application/json"])
   @ResponseStatus(HttpStatus.ACCEPTED)
-  fun sendLocallyHandledCommand(@PathVariable("id") id: Int): CompletableFuture<Any> {
-    logger.info("Sending locally handled command for id=$id")
-    return commandGateway.send(LocallyHandledCommand(id))
-  }
-
-  @GetMapping(value = ["/command/remote/{id}"], produces = ["application/json"])
-  @ResponseStatus(HttpStatus.ACCEPTED)
-  fun sendRemotelyHandledCommand(@PathVariable("id") id: Int): CompletableFuture<Any> {
-    logger.info("Sending remotely handled command for id=$id")
-    return commandGateway.send(RemotelyHandledCommand(id))
+  fun sendCommand(
+      @PathVariable("experiment") experiment: CommandExperiments,
+      @PathVariable("id") id: Int
+  ): CompletableFuture<Any> {
+    logger.info("Command for id=$id, mode=$experiment")
+    return when (experiment) {
+      CommandExperiments.local ->
+          commandGateway.send<Any>(LocallyHandledCommand(id)).thenApply { "Command handled" }
+      CommandExperiments.remote ->
+          commandGateway.send<Any>(RemotelyHandledCommand(id)).thenApply { "Command handled" }
+      CommandExperiments.retry ->
+          retryingCommandGateway.send<Any>(RemotelyHandledCommand(id)).thenApply {
+            "Command handled"
+          }
+      CommandExperiments.exception ->
+          commandGateway.send<Any>(BusinessExceptionCommand(id)).exceptionally {
+            "A business exception occurred and needs to be dealt with"
+          }
+    }
   }
 
   @GetMapping(value = ["/event/local/{id}"], produces = ["application/json"])
