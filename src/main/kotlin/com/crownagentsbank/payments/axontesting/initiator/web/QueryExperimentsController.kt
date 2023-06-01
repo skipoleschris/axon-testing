@@ -31,6 +31,7 @@ class QueryExperimentsController(private val queryGateway: QueryGateway) {
       QueryExperiments.local -> localQueryExperiment(id)
       QueryExperiments.remote -> remoteQueryExperiment(id)
       QueryExperiments.multiple -> multipleQueryExperiment(id)
+      QueryExperiments.subscribe -> subscribeQueryExperiment(id)
     }
   }
 
@@ -57,5 +58,31 @@ class QueryExperimentsController(private val queryGateway: QueryGateway) {
       QueryResult(id, result)
     }
     return future
+  }
+
+  private fun subscribeQueryExperiment(id: Int): CompletableFuture<QueryResult> {
+    val items = mutableListOf<String>()
+    return CompletableFuture.supplyAsync {
+      val result =
+          queryGateway.subscriptionQuery(
+              "subscription",
+              SubscriptionExperimentQuery(id),
+              ResponseTypes.multipleInstancesOf(String::class.java),
+              ResponseTypes.instanceOf(String::class.java))
+
+      result.handle(
+          {
+            logger.info("Initial results: $it")
+            items.addAll(it)
+          },
+          {
+            logger.info("Update result: $it")
+            items.add(it)
+          })
+
+      Thread.sleep(10000L)
+      result.close()
+      QueryResult(id, items.joinToString())
+    }
   }
 }

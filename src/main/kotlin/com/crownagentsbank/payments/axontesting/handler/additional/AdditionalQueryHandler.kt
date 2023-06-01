@@ -9,15 +9,13 @@ import org.springframework.stereotype.Component
 
 @Profile("monolith", "additional")
 @Component
-class AdditionalQueryHandler(
-    @Value("\${scatterGatherValues}") private val scatterGatherValues: List<String>
-) {
+class AdditionalQueryHandler(@Value("\${dataValues}") private val dataValues: List<String>) {
 
   private val logger = LoggerFactory.getLogger(AdditionalQueryHandler::class.java)
 
   @QueryHandler(queryName = "scatter-gather")
   fun on(query: ScatterGatherQuery): List<String> {
-    logger.info("Handling scatter/gather query: $query, returning: $scatterGatherValues")
-    return scatterGatherValues
+    logger.info("Handling scatter/gather query: $query, returning: $dataValues")
+    return dataValues
   }
 }
