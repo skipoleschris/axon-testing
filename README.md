@@ -25,6 +25,7 @@ The following spring profiles are currently possible:
   calls to different enpoints
 - *basic1* - Loads a basic handler for commands and events
 - *basic2* - Loads the same as basic1 but using different port configurations
+- *additional* - Additional handler for scenarios where we need a different spring application name
 
 The idea of the handler1 and handler2 profiles is to allow two versions of the same microservice to be running to
 see how multiple instances deal with commands, queries and events.
@@ -106,6 +107,7 @@ parameter controls which experiment is executed and supports the following value
 * `local`
 * `remote`
 * `multiple`
+* `subscribe`
 
 All requests return a simple json document containing the id and response details related to the experiment
 that has been completed.
@@ -152,7 +154,15 @@ the same Spring application name.
     curl -v http://localhost:8080/axon-test/query/multiple/9
 
 The query handler in both the basic and additional service is invoked and the results from
-both are combined together and returned.
+both are combined and returned.
+
+### Experiment 7 - Create a subscription query
+
+    curl -v http://localhost:8080/axon-test/query/subscribe/10
+
+A subscription query is created that gets an initial set of results and then waits for 10 seconds
+for additional updates. These are then joined together and returned via the web api. The console
+logs for the initiator and basic services show the updates being emitted and consumed.
 
 ## Non-Aggregate Event Experiments
 
