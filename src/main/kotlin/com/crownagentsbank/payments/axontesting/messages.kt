@@ -14,6 +14,8 @@ data class ScatterGatherQuery(val id: Int)
 
 data class SubscriptionExperimentQuery(val id: Int)
 
+data class StreamingExperimentQuery(val id: Int)
+
 data class CreateSimpleEventCommand(val id: Int)
 
 data class SimpleEvent(val id: Int)

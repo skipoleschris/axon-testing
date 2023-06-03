@@ -1,15 +1,13 @@
 package com.crownagentsbank.payments.axontesting.handler.basic
 
-import com.crownagentsbank.payments.axontesting.QueryResult
-import com.crownagentsbank.payments.axontesting.RemotelyHandledQuery
-import com.crownagentsbank.payments.axontesting.ScatterGatherQuery
-import com.crownagentsbank.payments.axontesting.SubscriptionExperimentQuery
+import com.crownagentsbank.payments.axontesting.*
 import org.axonframework.queryhandling.QueryHandler
 import org.axonframework.queryhandling.QueryUpdateEmitter
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Flux
 
 @Profile("monolith", "basic1", "basic2")
 @Component
@@ -51,5 +49,11 @@ class BasicQueryHandler(
           logger.info("Completed update thread: $query")
         }
         .start()
+  }
+
+  @QueryHandler
+  fun on(query: StreamingExperimentQuery): Flux<String> {
+    logger.info("Generating reactive Flux for: $query")
+    return Flux.just("A", "B", "C", "D", "E", "F", "G", "END").log()
   }
 }

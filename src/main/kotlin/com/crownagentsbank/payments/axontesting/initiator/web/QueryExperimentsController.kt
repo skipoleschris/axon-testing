@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Flux
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import kotlin.streams.asSequence
@@ -32,6 +33,7 @@ class QueryExperimentsController(private val queryGateway: QueryGateway) {
       QueryExperiments.remote -> remoteQueryExperiment(id)
       QueryExperiments.multiple -> multipleQueryExperiment(id)
       QueryExperiments.subscribe -> subscribeQueryExperiment(id)
+      QueryExperiments.stream -> streamQueryExperiment(id)
     }
   }
 
@@ -60,29 +62,44 @@ class QueryExperimentsController(private val queryGateway: QueryGateway) {
     return future
   }
 
-  private fun subscribeQueryExperiment(id: Int): CompletableFuture<QueryResult> {
-    val items = mutableListOf<String>()
-    return CompletableFuture.supplyAsync {
-      val result =
-          queryGateway.subscriptionQuery(
-              "subscription",
-              SubscriptionExperimentQuery(id),
-              ResponseTypes.multipleInstancesOf(String::class.java),
-              ResponseTypes.instanceOf(String::class.java))
+  private fun subscribeQueryExperiment(id: Int): CompletableFuture<QueryResult> =
+      CompletableFuture.supplyAsync {
+        val items = mutableListOf<String>()
+        val result =
+            queryGateway.subscriptionQuery(
+                "subscription",
+                SubscriptionExperimentQuery(id),
+                ResponseTypes.multipleInstancesOf(String::class.java),
+                ResponseTypes.instanceOf(String::class.java))
 
-      result.handle(
-          {
-            logger.info("Initial results: $it")
-            items.addAll(it)
-          },
-          {
-            logger.info("Update result: $it")
-            items.add(it)
-          })
+        result.handle(
+            {
+              logger.info("Initial results: $it")
+              items.addAll(it)
+            },
+            {
+              logger.info("Update result: $it")
+              items.add(it)
+            })
 
-      Thread.sleep(10000L)
-      result.close()
-      QueryResult(id, items.joinToString())
-    }
-  }
+        Thread.sleep(10000L)
+        result.close()
+        QueryResult(id, items.joinToString())
+      }
+
+  private fun streamQueryExperiment(id: Int): CompletableFuture<QueryResult> =
+      CompletableFuture.supplyAsync {
+        val items = mutableListOf<String>()
+        Flux.from(queryGateway.streamingQuery(StreamingExperimentQuery(id), String::class.java))
+            .log()
+            .takeUntil { it == "END" }
+            .doOnNext {
+              logger.info("Received streamed value: $it")
+              items.add(it)
+            }
+            .subscribe()
+
+        Thread.sleep(2000L)
+        QueryResult(id, items.joinToString())
+      }
 }

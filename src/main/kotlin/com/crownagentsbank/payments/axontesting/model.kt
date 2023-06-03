@@ -11,7 +11,8 @@ enum class QueryExperiments {
   local,
   remote,
   multiple,
-  subscribe
+  subscribe,
+  stream
 }
 
 class BusinessException : Exception()

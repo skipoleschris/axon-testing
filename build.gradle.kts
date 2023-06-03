@@ -21,6 +21,7 @@ dependencies {
   implementation("org.axonframework:axon-spring-boot-starter")
   implementation("org.axonframework.extensions.reactor:axon-reactor")
   implementation("org.axonframework.extensions.kotlin:axon-kotlin")
+  implementation("io.projectreactor:reactor-core")
 
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-web")
@@ -30,7 +31,6 @@ dependencies {
 
   runtimeOnly("com.h2database:h2")
   runtimeOnly("org.springframework.boot:spring-boot-devtools")
-  runtimeOnly("io.projectreactor:reactor-core")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation(kotlin("test"))
