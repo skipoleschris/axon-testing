@@ -108,6 +108,7 @@ parameter controls which experiment is executed and supports the following value
 * `remote`
 * `multiple`
 * `subscribe`
+* `stream`
 
 All requests return a simple json document containing the id and response details related to the experiment
 that has been completed.
@@ -162,6 +163,14 @@ both are combined and returned.
 
 A subscription query is created that gets an initial set of results and then waits for 10 seconds
 for additional updates. These are then joined together and returned via the web api. The console
+logs for the initiator and basic services show the updates being emitted and consumed.
+
+### Experiment 8 - Create a streaming query
+
+    curl -v http://localhost:8080/axon-test/query/stream/10
+
+A stream query is created that obtains a reactive flux stream and pulls elements from it until
+it finds an 'END' element. All the elements are joined together and returned via the web api. The console
 logs for the initiator and basic services show the updates being emitted and consumed.
 
 ## Non-Aggregate Event Experiments
