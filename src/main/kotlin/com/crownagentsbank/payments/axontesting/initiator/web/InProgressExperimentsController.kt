@@ -35,17 +35,13 @@ class InProgressExperimentsController(
     return commandGateway.send(CreateSimpleEventCommand(id))
   }
 
-  @GetMapping(value = ["/query/local/{id}"], produces = ["application/json"])
-  @ResponseStatus(HttpStatus.OK)
-  fun sendLocallyHandledQuery(@PathVariable("id") id: Int): CompletableFuture<QueryResult> {
-    logger.info("Sending locally handled query for id=$id")
-    return queryGateway.query(LocallyHandledQuery(id), QueryResult::class.java)
-  }
-
-  @GetMapping(value = ["/query/remote/{id}"], produces = ["application/json"])
-  @ResponseStatus(HttpStatus.OK)
-  fun sendRemotelyHandledQuery(@PathVariable("id") id: Int): CompletableFuture<QueryResult> {
-    logger.info("Sending remotely handled query for id=$id")
-    return queryGateway.query(RemotelyHandledQuery(id), QueryResult::class.java)
+  @GetMapping(value = ["/event/allinfo/{id}/{text}"], produces = ["application/json"])
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  fun generateAllInformationEvent(
+      @PathVariable("id") id: Int,
+      @PathVariable("text") text: String
+  ): CompletableFuture<Any> {
+    logger.info("Sending command to generate a all information event for id=$id, with text=$text")
+    return commandGateway.send(CreateAllInformationEventCommand(id, text))
   }
 }

@@ -29,4 +29,10 @@ class InitiatorCommandHandler(private val eventGateway: EventGateway) {
     logger.info("Handling command to create a locally handled event: $command")
     eventGateway.publish(LocallyHandledEvent(command.id))
   }
+
+  @CommandHandler
+  fun on(command: CreateAllInformationEventCommand) {
+    logger.info("Handling command to create all information event: $command")
+    eventGateway.publish(AllInformationEvent(command.id, command.text))
+  }
 }

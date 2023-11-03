@@ -1,5 +1,6 @@
 package com.crownagentsbank.payments.axontesting.initiator
 
+import com.crownagentsbank.payments.axontesting.InformationBEvent
 import com.crownagentsbank.payments.axontesting.LocallyHandledEvent
 import org.axonframework.config.ProcessingGroup
 import org.axonframework.eventhandling.EventHandler
@@ -18,5 +19,20 @@ class InitiatorEventHandler {
   @EventHandler
   fun on(event: LocallyHandledEvent, token: TrackingToken) {
     logger.info("Handling locally handled event: $event (tracking token: $token")
+  }
+
+  //  @EventHandler
+  //  fun on(event: AllInformationEvent) {
+  //    logger.info("Handling all information event: $event")
+  //  }
+
+  //  @EventHandler
+  //  fun on(event: InformationAEvent) {
+  //    logger.info("Handling information A event: $event")
+  //  }
+
+  @EventHandler
+  fun on(event: InformationBEvent) {
+    logger.info("Handling information B event: $event")
   }
 }
